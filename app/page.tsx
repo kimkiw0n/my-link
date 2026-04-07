@@ -1,7 +1,31 @@
-import { dummyLinks } from "@/data/links";
+"use client";
+
+import { useState } from "react";
+import { dummyLinks, LinkItem } from "@/data/links";
 import { Card, CardContent } from "@/components/ui/card";
+import { AddLinkDialog } from "@/components/add-link-dialog";
 
 export default function Page() {
+  const [links, setLinks] = useState<LinkItem[]>(dummyLinks);
+
+  const handleAddLink = (title: string, url: string) => {
+    try {
+      const urlObject = new URL(url);
+      const domain = urlObject.hostname;
+      const newLink: LinkItem = {
+        id: Date.now().toString(),
+        title,
+        url,
+        icon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+        clickCount: 0,
+      };
+      
+      setLinks((prev) => [newLink, ...prev]);
+    } catch (e) {
+      console.error("Invalid URL:", e);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center py-12 px-4 bg-zinc-50/50 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 selection:bg-zinc-200 dark:selection:bg-zinc-800">
       <div className="w-full max-w-md space-y-10 my-auto">
@@ -18,9 +42,12 @@ export default function Page() {
           </div>
         </div>
 
+        {/* 새 링크 추가 기능 */}
+        <AddLinkDialog onAddLink={handleAddLink} />
+
         {/* 링크 목록 영역 */}
         <div className="flex flex-col gap-3">
-          {dummyLinks.map((link) => (
+          {links.map((link) => (
             <a
               key={link.id}
               href={link.url}

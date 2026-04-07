@@ -53,3 +53,8 @@ This file defines the project structure, tech stack, development principles, and
   - Emphasis on `displayName` with large bold fonts.
   - Link clicks trigger external URL redirection and click tracking.
 - **Favicon API**: Use `https://www.google.com/s2/favicons?domain=<url>&sz=64` to automatically extract link icons.
+
+## 7. Agentic Documentation Rules
+- **Strict Requirement**: Gemini MUST always create, maintain, and present `implementation_plan.md`, `task.md`, and `walkthrough.md` artifacts during development tasks.
+- **No Skipping**: Never skip creating or updating these tracking documents. The user must always be able to see the plan, task progress, and final walkthrough.
+- **Localization**: As dictated by user rules, these documents (plan, task, walkthrough) must always be written in Korean (한국어).
