@@ -4,6 +4,7 @@ export interface LinkItem {
   url: string;
   icon?: string; // 구글 파비콘 API URL 저장용
   clickCount: number; // PRD 2.4: 링크 클릭 집계용
+  updatedAt?: string;
 }
 
 export const dummyLinks: LinkItem[] = [

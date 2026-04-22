@@ -26,6 +26,7 @@ export default function Page() {
           url: data.url,
           icon: data.icon,
           clickCount: data.clickCount || 0,
+          updatedAt: data.updatedAt?.toDate?.()?.toLocaleString('ko-KR'),
         });
       });
       setLinks(fetchedLinks);
@@ -71,6 +72,7 @@ export default function Page() {
         title,
         url,
         icon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+        updatedAt: serverTimestamp(),
       });
       console.log("Firebase 링크가 성공적으로 수정되었습니다.");
       await fetchLinks();
