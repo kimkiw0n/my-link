@@ -235,7 +235,7 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
       </Card>
 
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="sm:max-w-[400px]" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>정말 삭제하시겠습니까?</DialogTitle>
             <DialogDescription className="pt-2 space-y-2">
