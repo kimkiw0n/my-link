@@ -1,28 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Loader2 } from "lucide-react";
 import { dummyLinks, LinkItem } from "@/data/links";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddLinkDialog } from "@/components/add-link-dialog";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy } from "firebase/firestore";
 
 export default function Page() {
-  const [links, setLinks] = useState<LinkItem[]>(dummyLinks);
+  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const handleAddLink = (title: string, url: string) => {
+  const fetchLinks = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const q = query(collection(db, "users/anonymous/links"), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      const fetchedLinks: LinkItem[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        fetchedLinks.push({
+          id: doc.id,
+          title: data.title,
+          url: data.url,
+          icon: data.icon,
+          clickCount: data.clickCount || 0,
+        });
+      });
+      setLinks(fetchedLinks);
+    } catch (e) {
+      console.error("Error fetching links:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLinks();
+  }, [fetchLinks]);
+
+  const handleAddLink = async (title: string, url: string) => {
     try {
       const urlObject = new URL(url);
       const domain = urlObject.hostname;
-      const newLink: LinkItem = {
-        id: Date.now().toString(),
+      
+      // 사용자 화면(UI)에는 바로 띄우지 않고, Firebase(DB)에만 등록
+      await addDoc(collection(db, "users/anonymous/links"), {
         title,
         url,
         icon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
         clickCount: 0,
-      };
+        createdAt: serverTimestamp(),
+      });
       
-      setLinks((prev) => [newLink, ...prev]);
+      console.log("Firebase에 링크가 성공적으로 저장되었습니다.");
+      await fetchLinks();
     } catch (e) {
-      console.error("Invalid URL:", e);
+      console.error("Invalid URL or Firestore Error:", e);
     }
   };
 
@@ -47,7 +82,11 @@ export default function Page() {
 
         {/* 링크 목록 영역 */}
         <div className="flex flex-col gap-3">
-          {links.map((link) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="w-8 h-8 text-zinc-400 dark:text-zinc-600 animate-spin" />
+            </div>
+          ) : links.map((link) => (
             <a
               key={link.id}
               href={link.url}
