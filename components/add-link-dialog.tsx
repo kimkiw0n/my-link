@@ -81,7 +81,7 @@ export function AddLinkDialog({ onAddLink }: AddLinkDialogProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={
-        <Button className="w-full rounded-2xl h-14 shadow-sm font-medium">
+        <Button className="w-full rounded-2xl h-14 shadow-sm font-medium bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="w-4 h-4 mr-2" /> 새 링크 추가
         </Button>
       } />
@@ -135,7 +135,7 @@ export function AddLinkDialog({ onAddLink }: AddLinkDialogProps) {
             />
           </div>
           <DialogFooter>
-            <Button type="submit">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
               추가하기
             </Button>
           </DialogFooter>
