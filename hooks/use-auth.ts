@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { User, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, runTransaction } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 export interface UserProfile {
@@ -27,15 +27,42 @@ export function useAuth() {
         if (!userSnap.exists()) {
           // 최초 로그인 시에만 기본값 세팅
           const emailPrefix = currentUser.email ? currentUser.email.split('@')[0] : 'user';
-          currentProfile = {
-            uid: currentUser.uid,
-            email: currentUser.email,
-            username: currentUser.displayName,
-            displayName: emailPrefix,
-            photoURL: currentUser.photoURL,
-            bio: "",
-          };
-          await setDoc(userRef, currentProfile);
+          let baseName = emailPrefix;
+          
+          await runTransaction(db, async (transaction) => {
+            const userRef = doc(db, "users", currentUser.uid);
+            
+            // 중복 시 뒤에 숫자를 붙여 유니크한 이름 찾기
+            let finalDisplayName = baseName;
+            let counter = 0;
+            let isUnique = false;
+            
+            while (!isUnique && counter < 10) {
+              const checkName = counter === 0 ? baseName : `${baseName}${counter}`;
+              const mappingRef = doc(db, "displayNames", checkName);
+              const mappingSnap = await transaction.get(mappingRef);
+              
+              if (!mappingSnap.exists()) {
+                finalDisplayName = checkName;
+                isUnique = true;
+              } else {
+                counter++;
+              }
+            }
+            
+            const newProfile: UserProfile = {
+              uid: currentUser.uid,
+              email: currentUser.email,
+              username: currentUser.displayName || baseName,
+              displayName: finalDisplayName,
+              photoURL: currentUser.photoURL,
+              bio: "",
+            };
+            
+            transaction.set(userRef, newProfile);
+            transaction.set(doc(db, "displayNames", finalDisplayName), { uid: currentUser.uid });
+            currentProfile = newProfile;
+          });
         } else {
           // 기존 유저일 경우 기존 데이터 유지
           currentProfile = userSnap.data() as UserProfile;

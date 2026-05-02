@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { doc, updateDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
+import { doc, updateDoc, collection, query, where, getDocs, getDoc, runTransaction } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 import { useAuth, UserProfile } from "@/hooks/use-auth";
@@ -72,15 +72,38 @@ export function useUpdateDisplayNameMutation(setDisplayNameError: (err: string |
     mutationFn: async (newName: string) => {
       if (!user) throw new Error("User not authenticated");
 
-      const q = query(collection(db, "users"), where("displayName", "==", newName));
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        throw new Error("Duplicate displayName");
-      }
+      await runTransaction(db, async (transaction) => {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await transaction.get(userRef);
+        
+        if (!userSnap.exists()) throw new Error("User profile not found");
+        
+        const userData = userSnap.data() as UserProfile;
+        const oldName = userData.displayName;
 
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, { displayName: newName });
+        // 이름이 변경되지 않은 경우 처리 안 함
+        if (oldName === newName) return;
+
+        // 1. 새 이름이 다른 사람에 의해 선점되었는지 확인
+        const newMappingRef = doc(db, "displayNames", newName);
+        const newMappingSnap = await transaction.get(newMappingRef);
+        
+        if (newMappingSnap.exists()) {
+          throw new Error("Duplicate displayName");
+        }
+
+        // 2. 기존 이름 매핑 삭제
+        if (oldName) {
+          const oldMappingRef = doc(db, "displayNames", oldName);
+          transaction.delete(oldMappingRef);
+        }
+
+        // 3. 새 이름 매핑 생성
+        transaction.set(newMappingRef, { uid: user.uid });
+
+        // 4. 유저 프로필 업데이트
+        transaction.update(userRef, { displayName: newName });
+      });
     },
     onMutate: async (newName) => {
       if (!user) return { previousProfile: null };

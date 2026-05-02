@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // [유저 프로필 규칙]
+    match /users/{userId} {
+      // 누구나 유저의 공개 정보를 조회할 수 있습니다.
+      allow read: if true;
+      
+      // 생성 시 기본 규칙
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // 수정 시 상세 규칙
+      allow update: if request.auth != null && request.auth.uid == userId
+        && (
+          // 1. displayName을 수정하지 않는 경우 -> 허용
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['displayName'])
+          || 
+          // 2. displayName을 수정하는 경우 -> 형식만 검사
+          (
+            request.resource.data.displayName is string
+            && request.resource.data.displayName.size() >= 2
+            && request.resource.data.displayName.size() <= 30
+            && request.resource.data.displayName.matches('^[a-zA-Z0-9._-]+$')
+          )
+        );
+        
+      allow delete: if request.auth != null && request.auth.uid == userId;
+
+      // [링크 서브컬렉션 규칙]
+      match /links/{linkId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
+
+        // 방문자(비로그인)는 오직 clickCount 필드만 1씩 증가시키는 업데이트만 허용합니다.
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount', 'updatedAt'])
+          && request.resource.data.clickCount == resource.data.clickCount + 1;
+      }
+    }
+
+    // [디스플레이 네임 매핑 규칙]
+    match /displayNames/{displayName} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      
+      // 레거시 유저(매핑 문서가 없는 경우) 배려를 위해 resource == null 체크 추가
+      allow delete: if request.auth != null && (resource == null || resource.data.uid == request.auth.uid);
+      
+      allow update: if false;
+    }
+
+    // displayName 중복 확인을 위한 쿼리 허용
+    match /users {
+      allow list: if true;
+    }
+  }
+}
