@@ -6,145 +6,50 @@ import { LinkItem } from "@/data/links";
 import { AddLinkDialog } from "@/components/add-link-dialog";
 import { LinkCard } from "@/components/link-card";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { useAuth } from "@/hooks/use-auth";
 import { InlineEdit } from "@/components/inline-edit";
-import { toast } from "sonner";
+import { useLinksQuery, useAddLinkMutation, useUpdateLinkMutation, useDeleteLinkMutation } from "@/hooks/use-links";
+import { useProfileQuery, useUpdateProfileMutation, useUpdateDisplayNameMutation } from "@/hooks/use-profile";
 
 export default function Page() {
-  const { user, profile, loading: authLoading, signInWithGoogle, updateLocalProfile } = useAuth();
-  const [links, setLinks] = useState<LinkItem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { user, loading: authLoading, signInWithGoogle } = useAuth();
   const [displayNameError, setDisplayNameError] = useState<string | null>(null);
 
-  const handleUpdateProfile = async (field: "username" | "bio", value: string) => {
-    if (!user) return;
-    try {
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, { [field]: value });
-      updateLocalProfile({ [field]: value });
-      toast.success("프로필이 업데이트되었습니다.");
-    } catch (e) {
-      console.error(e);
-      toast.error("프로필 업데이트 중 오류가 발생했습니다.");
-    }
+  // TanStack Query Hooks
+  const { data: profile } = useProfileQuery(user?.uid);
+  const { data: links = [], isLoading } = useLinksQuery(user?.uid);
+  const { mutateAsync: addLink } = useAddLinkMutation(user?.uid);
+  const { mutateAsync: updateLink } = useUpdateLinkMutation(user?.uid);
+  const { mutateAsync: deleteLink } = useDeleteLinkMutation(user?.uid);
+  const { mutateAsync: updateProfile } = useUpdateProfileMutation();
+  const { mutateAsync: updateDisplayName } = useUpdateDisplayNameMutation(setDisplayNameError);
+
+  const handleUpdateProfile = (field: "username" | "bio", value: string) => {
+    updateProfile({ field, value });
   };
 
   const handleUpdateDisplayName = async (newName: string) => {
-    if (!user || !profile) return;
-    setDisplayNameError(null);
-    
     try {
-      if (newName === profile.displayName) return;
-
-      // Check for duplicates
-      const q = query(collection(db, "users"), where("displayName", "==", newName));
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        setDisplayNameError("이미 존재하는 아이디입니다.");
-        toast.error("이미 존재하는 아이디입니다.");
-        throw new Error("Duplicate displayName");
-      }
-
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, { displayName: newName });
-      updateLocalProfile({ displayName: newName });
-      toast.success("아이디가 업데이트되었습니다.");
+      await updateDisplayName(newName);
     } catch (e) {
-      console.error(e);
-      if ((e as Error).message !== "Duplicate displayName") {
-        toast.error("아이디 업데이트 중 오류가 발생했습니다.");
-      }
-      throw e; // throw to let InlineEdit know there's an error
+      throw e; // InlineEdit 컴포넌트에서 에러를 인지하도록 re-throw
     }
   };
 
-  const fetchLinks = useCallback(async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const q = query(collection(db, `users/${user.uid}/links`), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      const fetchedLinks: LinkItem[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        fetchedLinks.push({
-          id: doc.id,
-          title: data.title,
-          url: data.url,
-          icon: data.icon,
-          clickCount: data.clickCount || 0,
-          updatedAt: data.updatedAt?.toDate?.()?.toLocaleString('ko-KR'),
-        });
-      });
-      setLinks(fetchedLinks);
-    } catch (e) {
-      console.error("Error fetching links:", e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      fetchLinks();
-    }
-  }, [fetchLinks, user]);
-
   const handleAddLink = async (title: string, url: string) => {
-    if (!user) return;
     try {
-      const urlObject = new URL(url);
-      const domain = urlObject.hostname;
-      
-      await addDoc(collection(db, `users/${user.uid}/links`), {
-        title,
-        url,
-        icon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
-        clickCount: 0,
-        createdAt: serverTimestamp(),
-      });
-      
-      console.log("Firebase에 링크가 성공적으로 저장되었습니다.");
-      await fetchLinks();
+      await addLink({ title, url });
     } catch (e) {
-      console.error("Invalid URL or Firestore Error:", e);
+      console.error(e);
     }
   };
 
   const handleUpdateLink = async (id: string, title: string, url: string) => {
-    if (!user) return;
-    try {
-      const urlObject = new URL(url);
-      const domain = urlObject.hostname;
-      
-      const linkRef = doc(db, `users/${user.uid}/links`, id);
-      await updateDoc(linkRef, {
-        title,
-        url,
-        icon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
-        updatedAt: serverTimestamp(),
-      });
-      console.log("Firebase 링크가 성공적으로 수정되었습니다.");
-      await fetchLinks();
-    } catch (e) {
-      console.error("Error updating link:", e);
-      throw e;
-    }
+    await updateLink({ id, title, url });
   };
 
   const handleDeleteLink = async (id: string) => {
-    if (!user) return;
-    try {
-      const linkRef = doc(db, `users/${user.uid}/links`, id);
-      await deleteDoc(linkRef);
-      console.log("Firebase 링크가 성공적으로 삭제되었습니다.");
-      await fetchLinks();
-    } catch (e) {
-      console.error("Error deleting link:", e);
-      throw e;
-    }
+    await deleteLink(id);
   };
 
   if (authLoading) {

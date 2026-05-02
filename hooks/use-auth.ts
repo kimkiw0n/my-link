@@ -14,7 +14,6 @@ export interface UserProfile {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,21 +41,15 @@ export function useAuth() {
           currentProfile = userSnap.data() as UserProfile;
         }
 
-        setProfile(currentProfile);
         setUser(currentUser);
       } else {
         setUser(null);
-        setProfile(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
-
-  const updateLocalProfile = (updates: Partial<UserProfile>) => {
-    setProfile((prev) => (prev ? { ...prev, ...updates } : null));
-  };
 
   const signInWithGoogle = async () => {
     try {
@@ -77,5 +70,5 @@ export function useAuth() {
     }
   };
 
-  return { user, profile, loading, signInWithGoogle, signOut, updateLocalProfile };
+  return { user, loading, signInWithGoogle, signOut };
 }

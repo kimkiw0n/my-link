@@ -1,6 +1,6 @@
 "use client";
-
 import { useAuth } from "@/hooks/use-auth";
+import { useProfileQuery } from "@/hooks/use-profile";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +15,8 @@ import { Copy, Eye, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export function Header() {
-  const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { data: profile } = useProfileQuery(user?.uid);
 
   const handleCopyLink = async () => {
     try {
