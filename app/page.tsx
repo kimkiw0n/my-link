@@ -6,13 +6,59 @@ import { LinkItem } from "@/data/links";
 import { AddLinkDialog } from "@/components/add-link-dialog";
 import { LinkCard } from "@/components/link-card";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { useAuth } from "@/hooks/use-auth";
+import { InlineEdit } from "@/components/inline-edit";
+import { toast } from "sonner";
 
 export default function Page() {
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
+  const { user, profile, loading: authLoading, signInWithGoogle, updateLocalProfile } = useAuth();
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [displayNameError, setDisplayNameError] = useState<string | null>(null);
+
+  const handleUpdateProfile = async (field: "username" | "bio", value: string) => {
+    if (!user) return;
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { [field]: value });
+      updateLocalProfile({ [field]: value });
+      toast.success("프로필이 업데이트되었습니다.");
+    } catch (e) {
+      console.error(e);
+      toast.error("프로필 업데이트 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleUpdateDisplayName = async (newName: string) => {
+    if (!user || !profile) return;
+    setDisplayNameError(null);
+    
+    try {
+      if (newName === profile.displayName) return;
+
+      // Check for duplicates
+      const q = query(collection(db, "users"), where("displayName", "==", newName));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        setDisplayNameError("이미 존재하는 아이디입니다.");
+        toast.error("이미 존재하는 아이디입니다.");
+        throw new Error("Duplicate displayName");
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { displayName: newName });
+      updateLocalProfile({ displayName: newName });
+      toast.success("아이디가 업데이트되었습니다.");
+    } catch (e) {
+      console.error(e);
+      if ((e as Error).message !== "Duplicate displayName") {
+        toast.error("아이디 업데이트 중 오류가 발생했습니다.");
+      }
+      throw e; // throw to let InlineEdit know there's an error
+    }
+  };
 
   const fetchLinks = useCallback(async () => {
     if (!user) return;
@@ -175,25 +221,41 @@ export default function Page() {
       <div className="w-full max-w-md space-y-10 my-auto">
         {/* 프로필 영역 */}
         <div className="flex flex-col items-center text-center space-y-5">
-          {user.photoURL ? (
+          {profile?.photoURL ? (
             <img 
-              src={user.photoURL} 
+              src={profile.photoURL} 
               alt="Profile" 
               className="w-24 h-24 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm object-cover" 
             />
           ) : (
             <div className="w-24 h-24 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-center text-3xl font-medium tracking-tight text-zinc-600 dark:text-zinc-400">
-              {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+              {profile?.username ? profile.username.charAt(0).toUpperCase() : (profile?.displayName ? profile.displayName.charAt(0).toUpperCase() : "U")}
             </div>
           )}
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">{user.displayName || "User"}</h1>
-            <p className="text-[15px] font-medium text-zinc-600 dark:text-zinc-300">
-              @{user.email ? user.email.split('@')[0] : "User"}
-            </p>
-            <p className="text-[13px] text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto leading-relaxed pt-2">
-              마이링크에 오신 것을 환영합니다!
-            </p>
+          <div className="space-y-1 w-full max-w-[280px]">
+            <InlineEdit
+              value={profile?.username || ""}
+              onSave={(val) => handleUpdateProfile("username", val)}
+              textClassName="text-2xl font-bold tracking-tight"
+              inputClassName="text-xl font-bold h-10"
+              placeholder="이름을 입력하세요"
+            />
+            <InlineEdit
+              value={profile?.displayName || ""}
+              onSave={handleUpdateDisplayName}
+              textClassName="text-[15px] font-medium text-zinc-600 dark:text-zinc-300"
+              inputClassName="text-sm h-8"
+              prefix="@"
+              placeholder="아이디를 입력하세요"
+              error={displayNameError}
+            />
+            <InlineEdit
+              value={profile?.bio || ""}
+              onSave={(val) => handleUpdateProfile("bio", val)}
+              textClassName="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed pt-1"
+              inputClassName="text-xs h-8 mt-1"
+              placeholder="짧은 소개글을 입력해주세요"
+            />
           </div>
         </div>
 

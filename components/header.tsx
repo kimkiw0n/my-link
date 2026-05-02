@@ -15,7 +15,7 @@ import { Copy, Eye, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export function Header() {
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
 
   const handleCopyLink = async () => {
     try {
@@ -37,19 +37,19 @@ export function Header() {
           user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center justify-center w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden bg-zinc-100 dark:bg-zinc-900 transition-all hover:ring-2 hover:ring-blue-500/50">
-                {user.photoURL ? (
-                  <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                {profile?.photoURL ? (
+                  <img src={profile.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-sm font-semibold">{user.displayName?.charAt(0) || "U"}</span>
+                  <span className="text-sm font-semibold">{profile?.username?.charAt(0) || profile?.displayName?.charAt(0) || "U"}</span>
                 )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 p-1">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="font-normal py-3">
                     <div className="flex flex-col space-y-1.5">
-                      <p className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-100">{user.displayName}</p>
+                      <p className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-100">{profile?.username || profile?.displayName}</p>
                       <p className="text-xs leading-none text-zinc-500 dark:text-zinc-400">
-                        {user.email}
+                        @{profile?.displayName}
                       </p>
                     </div>
                   </DropdownMenuLabel>
