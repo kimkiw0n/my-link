@@ -72,7 +72,7 @@ export function AddLinkDialog({ onAddLink }: AddLinkDialogProps) {
     if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
       finalUrl = "https://" + finalUrl;
     }
-    
+
     onAddLink(values.title.trim(), finalUrl);
     setOpen(false);
     reset();
