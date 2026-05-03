@@ -14,13 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Copy, Eye, LogOut, ExternalLink } from "lucide-react";
+import { Copy, Eye, LogOut, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading, isAuthenticating, signInWithGoogle, signOut } = useAuth();
   const { data: profile } = useProfileQuery(user?.uid);
 
   const handleCopyLink = async () => {
@@ -92,8 +92,17 @@ export function Header() {
               </DropdownMenu>
             </div>
           ) : (
-            <Button size="sm" onClick={signInWithGoogle} className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-md px-4">
-              로그인
+            <Button 
+              size="sm" 
+              onClick={signInWithGoogle} 
+              disabled={isAuthenticating}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-md px-4 min-w-[70px]"
+            >
+              {isAuthenticating ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                "로그인"
+              )}
             </Button>
           )
         )}

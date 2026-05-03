@@ -15,6 +15,7 @@ export interface UserProfile {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -79,12 +80,24 @@ export function useAuth() {
   }, []);
 
   const signInWithGoogle = async () => {
+    if (isAuthenticating) return;
+    
+    setIsAuthenticating(true);
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: any) {
+      if (
+        error.code === "auth/cancelled-popup-request" || 
+        error.code === "auth/popup-closed-by-user"
+      ) {
+        // User closed the popup or another request was made; ignore
+        return;
+      }
       console.error("Error signing in with Google:", error);
       throw error;
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -97,5 +110,5 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, signInWithGoogle, signOut };
+  return { user, loading, isAuthenticating, signInWithGoogle, signOut };
 }
