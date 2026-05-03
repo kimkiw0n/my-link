@@ -78,11 +78,11 @@ export default function Page() {
       <main className="flex min-h-[calc(100vh-73px)] flex-col items-center py-20 px-4 bg-white dark:bg-zinc-950 overflow-hidden relative">
         <div className="w-full max-w-4xl text-center space-y-8 relative z-10 mt-10">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            Development in <span className="text-blue-600">One<br/>Link.</span>
+            Portfolio in <br/><span className="text-blue-600">One Link.</span>
           </h1>
           <p className="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150 fill-mode-both">
-            GitHub, 블로그, 포트폴리오까지.<br/>
-            개발자를 위한 모든 링크를 한 페이지에 담아보세요.
+            GitHub, 블로그, 포트폴리오까지<br/>
+            모든 링크를 한 페이지에 담아보세요.
           </p>
           
           <div className="pt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-both">
