@@ -10,10 +10,21 @@ import { useAuth } from "@/hooks/use-auth";
 import { InlineEdit } from "@/components/inline-edit";
 import { useLinksQuery, useAddLinkMutation, useUpdateLinkMutation, useDeleteLinkMutation } from "@/hooks/use-links";
 import { useProfileQuery, useUpdateProfileMutation, useUpdateDisplayNameMutation } from "@/hooks/use-profile";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 export default function Page() {
   const { user, loading: authLoading, isAuthenticating, signInWithGoogle } = useAuth();
   const [displayNameError, setDisplayNameError] = useState<string | null>(null);
+  const [isDuplicateAlertOpen, setIsDuplicateAlertOpen] = useState(false);
 
   // TanStack Query Hooks
   const { data: profile } = useProfileQuery(user?.uid);
@@ -29,10 +40,12 @@ export default function Page() {
   };
 
   const handleUpdateDisplayName = async (newName: string) => {
-    try {
-      await updateDisplayName(newName);
-    } catch (e) {
-      throw e; // InlineEdit 컴포넌트에서 에러를 인지하도록 re-throw
+    const result = await updateDisplayName(newName);
+    if (result === "duplicate") {
+      setIsDuplicateAlertOpen(true);
+      // InlineEdit이 닫히는 것을 방지하기 위해 에러를 던지지만, 
+      // 이미 팝업이 떴으므로 사용자는 팝업을 보고 대응하게 됩니다.
+      throw new Error("duplicate-silent"); 
     }
   };
 
@@ -160,6 +173,7 @@ export default function Page() {
               prefix="@"
               placeholder="아이디를 입력하세요"
               error={displayNameError}
+              hideErrorText={true}
             />
             <InlineEdit
               value={profile?.bio || ""}
@@ -201,6 +215,40 @@ export default function Page() {
       <footer className="mt-16 pb-8 text-[12px] font-medium text-zinc-400 dark:text-zinc-600 tracking-wide uppercase">
         Powered by MyLink
       </footer>
+
+      {/* 중복 아이디 경고 팝업 */}
+      <Dialog open={isDuplicateAlertOpen} onOpenChange={setIsDuplicateAlertOpen}>
+        <DialogContent 
+          showCloseButton={false}
+          className="max-w-[320px] sm:max-w-[380px] rounded-[32px] p-0 overflow-hidden border-none bg-white dark:bg-zinc-900 shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+        >
+          <div className="p-8 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-6 shadow-sm border border-red-100 dark:border-red-800/30">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-500" />
+            </div>
+            
+            <DialogHeader className="space-y-3 mb-8">
+              <DialogTitle className="text-2xl font-bold tracking-tight text-red-600 dark:text-red-500">
+                아이디 중복 에러
+              </DialogTitle>
+              <DialogDescription className="text-[15px] font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                <span className="text-zinc-900 dark:text-zinc-100 font-bold block mb-1">이미 사용 중인 아이디입니다.</span>
+                다른 아이디를 입력해 주세요.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter className="w-full">
+              <Button 
+                variant="default" 
+                onClick={() => setIsDuplicateAlertOpen(false)}
+                className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg shadow-red-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] border-none text-base"
+              >
+                확인
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

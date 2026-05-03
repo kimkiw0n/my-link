@@ -72,7 +72,7 @@ export function useUpdateDisplayNameMutation(setDisplayNameError: (err: string |
     mutationFn: async (newName: string) => {
       if (!user) throw new Error("User not authenticated");
 
-      await runTransaction(db, async (transaction) => {
+      return await runTransaction(db, async (transaction) => {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await transaction.get(userRef);
         
@@ -82,14 +82,17 @@ export function useUpdateDisplayNameMutation(setDisplayNameError: (err: string |
         const oldName = userData.displayName;
 
         // 이름이 변경되지 않은 경우 처리 안 함
-        if (oldName === newName) return;
+        if (oldName === newName) return "success";
 
         // 1. 새 이름이 다른 사람에 의해 선점되었는지 확인
         const newMappingRef = doc(db, "displayNames", newName);
         const newMappingSnap = await transaction.get(newMappingRef);
         
         if (newMappingSnap.exists()) {
-          throw new Error("Duplicate displayName");
+          const mappingData = newMappingSnap.data() as { uid: string };
+          if (mappingData.uid !== user.uid) {
+            return "duplicate";
+          }
         }
 
         // 2. 기존 이름 매핑 삭제
@@ -103,6 +106,8 @@ export function useUpdateDisplayNameMutation(setDisplayNameError: (err: string |
 
         // 4. 유저 프로필 업데이트
         transaction.update(userRef, { displayName: newName });
+        
+        return "success";
       });
     },
     onMutate: async (newName) => {
@@ -124,22 +129,19 @@ export function useUpdateDisplayNameMutation(setDisplayNameError: (err: string |
       if (user && context?.previousProfile) {
         queryClient.setQueryData(["profile", user.uid], context.previousProfile);
       }
-      if (err.message === "Duplicate displayName") {
-        setDisplayNameError("이미 존재하는 아이디입니다.");
-        toast.error("이미 존재하는 아이디입니다.");
-      } else {
-        toast.error("아이디 업데이트 중 오류가 발생했습니다.");
-        console.error(err);
-      }
-      throw err;
+      toast.error("아이디 업데이트 중 오류가 발생했습니다.");
+      console.error(err);
     },
     onSettled: () => {
       if (user) {
         queryClient.invalidateQueries({ queryKey: ["profile", user.uid] });
       }
     },
-    onSuccess: (data, newName) => {
-      const previousProfile = queryClient.getQueryData<UserProfile>(["profile", user?.uid || ""]);
+    onSuccess: (result) => {
+      if (result === "duplicate") {
+        setDisplayNameError("이미 존재하는 아이디입니다.");
+        return;
+      }
       toast.success("아이디가 업데이트되었습니다.", { duration: 1000 });
     },
   });

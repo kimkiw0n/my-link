@@ -13,6 +13,7 @@ interface InlineEditProps {
   textClassName?: string;
   prefix?: string;
   error?: string | null;
+  hideErrorText?: boolean;
 }
 
 export function InlineEdit({ 
@@ -23,7 +24,8 @@ export function InlineEdit({
   inputClassName,
   textClassName,
   prefix = "",
-  error
+  error,
+  hideErrorText = false
 }: InlineEditProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
@@ -84,7 +86,7 @@ export function InlineEdit({
               className={cn("text-center w-full bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 focus-visible:ring-blue-500", prefix && "pl-8", inputClassName, error && "border-red-500 focus-visible:ring-red-500")}
             />
           </div>
-          {error && <span className="text-xs text-red-500 font-medium mt-1 absolute -bottom-5">{error}</span>}
+          {error && !hideErrorText && <span className="text-xs text-red-500 font-medium mt-1 absolute -bottom-5">{error}</span>}
         </div>
       ) : (
         <div className="flex flex-col items-center w-full">
@@ -99,7 +101,7 @@ export function InlineEdit({
           >
             {prefix}{value || placeholder}
           </div>
-          {error && <span className="text-xs text-red-500 font-medium mt-1 absolute -bottom-5">{error}</span>}
+          {error && !hideErrorText && <span className="text-xs text-red-500 font-medium mt-1 absolute -bottom-5">{error}</span>}
         </div>
       )}
     </div>

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/header";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/query-provider";
+import { AuthProvider } from "@/components/auth-provider";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <QueryProvider>
-            <Header />
-            {children}
-            <Toaster position="top-center" />
+            <AuthProvider>
+              <Header />
+              {children}
+              <Toaster position="top-center" />
+            </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>
