@@ -1,10 +1,36 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { LinkItem } from "@/data/links";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export function useLinksQuery(uid: string | undefined) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!uid) return;
+    
+    const q = query(collection(db, `users/${uid}/links`), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const fetchedLinks: LinkItem[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        fetchedLinks.push({
+          id: doc.id,
+          title: data.title,
+          url: data.url,
+          icon: data.icon,
+          clickCount: data.clickCount || 0,
+          updatedAt: data.updatedAt?.toDate?.()?.toLocaleString('ko-KR'),
+        });
+      });
+      queryClient.setQueryData(["links", uid], fetchedLinks);
+    });
+
+    return () => unsubscribe();
+  }, [uid, queryClient]);
+
   return useQuery({
     queryKey: ["links", uid],
     queryFn: async () => {
@@ -26,6 +52,7 @@ export function useLinksQuery(uid: string | undefined) {
       return fetchedLinks;
     },
     enabled: !!uid,
+    staleTime: Infinity,
   });
 }
 

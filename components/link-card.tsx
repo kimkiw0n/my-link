@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Edit2, Trash2, Loader2, GripVertical } from "lucide-react";
+import { Edit2, Trash2, Loader2, GripVertical, MousePointerClick } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -242,9 +242,16 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
               <div className="w-12 h-12 flex-shrink-0 mr-4 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shadow-sm" />
             )}
             
-            {/* 타이틀 텍스트 */}
-            <div className="flex-1 font-medium text-[14px] sm:text-[15px] tracking-tight group-hover:text-zinc-900 dark:group-hover:text-zinc-50 text-zinc-700 dark:text-zinc-300 transition-colors truncate pr-4">
-              {link.title}
+            {/* 타이틀 텍스트 및 클릭수 */}
+            <div className="flex-1 flex flex-col min-w-0 pr-4 justify-center gap-1">
+              <div className="font-medium text-[14px] sm:text-[15px] tracking-tight group-hover:text-zinc-900 dark:group-hover:text-zinc-50 text-zinc-700 dark:text-zinc-300 transition-colors truncate">
+                {link.title}
+              </div>
+              {/* 클릭수 표시 */}
+              <div className="flex items-center gap-1.5 text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <MousePointerClick className="w-3.5 h-3.5" />
+                <span>{link.clickCount || 0} clicks</span>
+              </div>
             </div>
           </a>
 
