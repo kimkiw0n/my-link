@@ -215,7 +215,7 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
           <div 
             {...attributes} 
             {...listeners} 
-            className="p-2 sm:p-3 pl-3 sm:pl-4 cursor-grab active:cursor-grabbing text-zinc-300 hover:text-zinc-500 dark:text-zinc-600 dark:hover:text-zinc-400 transition-colors focus:outline-none"
+            className="touch-none p-2 sm:p-3 pl-3 sm:pl-4 cursor-grab active:cursor-grabbing text-zinc-300 hover:text-zinc-500 dark:text-zinc-600 dark:hover:text-zinc-400 transition-colors focus:outline-none"
             aria-label="드래그하여 순서 변경"
           >
             <GripVertical className="w-5 h-5" />
