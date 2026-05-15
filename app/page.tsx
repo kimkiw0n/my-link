@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Move, BarChart2, User, LogIn, Palette, Share2, ArrowRight } from "lucide-react";
 
 export default function Page() {
   const { user, loading: authLoading, isAuthenticating, signInWithGoogle } = useAuth();
@@ -120,14 +120,14 @@ export default function Page() {
 
   if (!user) {
     return (
-      <main className="flex min-h-[calc(100vh-73px)] flex-col items-center py-20 px-4 bg-white dark:bg-zinc-950 overflow-hidden relative">
+      <main className="flex min-h-[calc(100vh-73px)] flex-col items-center py-20 px-4 bg-white dark:bg-zinc-950 overflow-x-hidden relative">
         <div className="w-full max-w-4xl text-center space-y-8 relative z-10 mt-10">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
             Portfolio in <br/><span className="text-blue-600">One Link.</span>
           </h1>
           <p className="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150 fill-mode-both">
-            GitHub, 블로그, 포트폴리오까지<br/>
-            모든 링크를 한 페이지에 담아보세요.
+            GitHub, 블로그, 수상 이력까지<br/>
+            모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.
           </p>
           
           <div className="pt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-both">
@@ -174,7 +174,7 @@ export default function Page() {
             {/* List Mock */}
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 w-full bg-blue-50/70 dark:bg-blue-950/40 rounded-2xl border border-blue-100/50 dark:border-blue-900/50 flex items-center px-5 hover:bg-blue-100/50 transition-colors">
+                <div key={i} className="h-20 w-full bg-blue-50/70 dark:bg-blue-950/40 rounded-2xl border border-blue-100/50 dark:border-blue-900/50 flex items-center px-5 hover:bg-blue-100/50 dark:hover:bg-blue-900/60 transition-colors cursor-pointer">
                   <div className="w-10 h-10 rounded-full bg-blue-200 dark:bg-blue-800/80 mr-4"></div>
                   <div className="w-1/2 h-5 rounded-md bg-zinc-200/80 dark:bg-zinc-700/80"></div>
                 </div>
@@ -182,6 +182,128 @@ export default function Page() {
             </div>
           </div>
         </div>
+
+        {/* Features Section */}
+        <div className="w-full max-w-5xl mx-auto mt-32 relative z-10 px-4">
+          <div className="text-center mb-16 relative z-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-4">
+              왜 MyLink를 사용해야할까요?
+            </h2>
+            <p className="text-lg text-zinc-500 dark:text-zinc-400 font-medium">
+              복잡한 설정 없이, 직관적으로 포트폴리오를 관리하세요!
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            <div className="absolute inset-0 bg-blue-400/5 dark:bg-blue-600/5 blur-3xl rounded-[100%] scale-150"></div>
+            
+            {/* Feature 1 */}
+            <div className="relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
+                <Move className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">직관적인 관리</h3>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">드래그 앤 드롭으로 링크 순서를<br/>자유롭게 변경하세요.</p>
+            </div>
+            
+            {/* Feature 2 */}
+            <div className="relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
+                <BarChart2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">실시간 통계</h3>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">방문자들이 어떤 링크에 가장 관심 있는지<br/>클릭 수를 확인하세요.</p>
+            </div>
+            
+            {/* Feature 3 */}
+            <div className="relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
+                <User className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">나만의 프로필</h3>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">커스텀 아이디와 프로필로<br/>나만의 포트폴리오를 완성하세요.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Timeline CTA */}
+        <div className="w-full max-w-4xl mx-auto mt-32 mb-20 relative z-10 px-4">
+          <div className="text-center mb-16 relative z-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-4">
+              30초면 충분합니다
+            </h2>
+          </div>
+
+          <div className="relative">
+            {/* 세로 선 (데스크탑은 중앙, 모바일은 좌측) */}
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-zinc-200/50 dark:bg-zinc-800/50 transform md:-translate-x-1/2"></div>
+
+            <div className="space-y-12">
+              {/* Step 1 */}
+              <div className="relative flex flex-col md:flex-row items-center md:justify-between group">
+                <div className="hidden md:block md:w-5/12"></div>
+                <div className="absolute left-8 md:left-1/2 w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 border-4 border-white dark:border-zinc-950 flex items-center justify-center transform -translate-x-1/2 z-10 text-blue-600 dark:text-blue-400 shadow-sm transition-transform duration-300 group-hover:scale-110">
+                  <LogIn className="w-5 h-5" />
+                </div>
+                <div className="w-full pl-20 md:pl-0 md:w-5/12">
+                  <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">로그인</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">구글 계정으로 간편하게 시작하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="relative flex flex-col md:flex-row items-center md:justify-between md:flex-row-reverse group">
+                <div className="hidden md:block md:w-5/12"></div>
+                <div className="absolute left-8 md:left-1/2 w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 border-4 border-white dark:border-zinc-950 flex items-center justify-center transform -translate-x-1/2 z-10 text-blue-600 dark:text-blue-400 shadow-sm transition-transform duration-300 group-hover:scale-110">
+                  <Palette className="w-5 h-5" />
+                </div>
+                <div className="w-full pl-20 md:pl-0 md:w-5/12">
+                  <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow md:text-right">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">포트폴리오 꾸미기</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">사진을 올리고 나만의 링크들을 추가하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="relative flex flex-col md:flex-row items-center md:justify-between group">
+                <div className="hidden md:block md:w-5/12"></div>
+                <div className="absolute left-8 md:left-1/2 w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 border-4 border-white dark:border-zinc-950 flex items-center justify-center transform -translate-x-1/2 z-10 text-blue-600 dark:text-blue-400 shadow-sm transition-transform duration-300 group-hover:scale-110">
+                  <Share2 className="w-5 h-5" />
+                </div>
+                <div className="w-full pl-20 md:pl-0 md:w-5/12">
+                  <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">공유하기</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">완성된 링크를 인스타그램, 이력서에 공유하세요.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-20 pt-4 text-center relative z-10">
+            <button 
+              onClick={signInWithGoogle}
+              disabled={isAuthenticating}
+              className="relative bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:hover:translate-y-0 text-white font-semibold py-4 px-10 rounded-xl shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mx-auto text-lg w-full max-w-sm group"
+            >
+              {isAuthenticating ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                <>
+                  지금 바로 시작하기
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="w-full py-8 border-t border-zinc-200/50 dark:border-zinc-800/50 text-center text-[13px] font-medium text-zinc-400 dark:text-zinc-600 tracking-wide mt-auto relative z-10">
+          <p>© {new Date().getFullYear()} MyLink. All rights reserved.</p>
+        </footer>
       </main>
     );
   }
