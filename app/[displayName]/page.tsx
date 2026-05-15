@@ -45,6 +45,7 @@ export async function generateMetadata(
     openGraph: {
       title: `${username} (@${displayName}) | MyLink`,
       description: bio,
+      url: `https://my-link-kiwon.vercel.app/${displayName}`,
       images: photoURL ? [photoURL] : [],
       type: "profile",
       username: displayName,

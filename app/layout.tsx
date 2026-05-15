@@ -17,7 +17,7 @@ const fontMono = Geist_Mono({
 
 export const metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://my-link-kiwon.vercel.app"
   ),
   title: {
     default: "MyLink - Portfolio in One Link",
@@ -36,7 +36,7 @@ export const metadata = {
   openGraph: {
     title: "MyLink - Portfolio in One Link",
     description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    url: "https://my-link-kiwon.vercel.app",
     siteName: "MyLink",
     locale: "ko_KR",
     type: "website",
