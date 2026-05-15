@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Copy, Eye, LogOut, ExternalLink, Loader2 } from "lucide-react";
+import { Copy, Eye, LogOut, ExternalLink, Loader2, BarChart2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function Header() {
@@ -78,6 +78,13 @@ export function Header() {
                   >
                     <Eye className="w-4 h-4 text-zinc-500" />
                     <span className="font-medium">내 페이지 보기</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => router.push('/stats')}
+                    className="cursor-pointer gap-3 py-2.5"
+                  >
+                    <BarChart2 className="w-4 h-4 text-zinc-500" />
+                    <span className="font-medium">통계</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer gap-3 py-2.5">
                     <Copy className="w-4 h-4 text-zinc-500" />
