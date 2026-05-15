@@ -322,6 +322,15 @@ export function HomeClient() {
         <footer className="w-full py-8 border-t border-zinc-200/50 dark:border-zinc-800/50 text-center text-[13px] font-medium text-zinc-400 dark:text-zinc-600 tracking-wide mt-auto relative z-10">
           <p>© {new Date().getFullYear()} MyLink. All rights reserved.</p>
         </footer>
+
+        {/* 인앱 브라우저 경고 팝업 */}
+        <InAppBrowserWarning 
+          open={showInAppWarning}
+          onOpenChange={setShowInAppWarning}
+          isAndroid={isAndroid}
+          isIOS={isIOS}
+          onOpenBrowser={openInBrowser}
+        />
       </main>
     );
   }

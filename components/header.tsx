@@ -16,12 +16,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Copy, Eye, LogOut, ExternalLink, Loader2, BarChart2 } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { useInAppBrowser } from "@/hooks/use-in-app-browser";
+import { InAppBrowserWarning } from "@/components/in-app-browser-warning";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, isAuthenticating, signInWithGoogle, signOut } = useAuth();
   const { data: profile } = useProfileQuery(user?.uid);
+  const [showInAppWarning, setShowInAppWarning] = useState(false);
+  const { isInAppBrowser, isAndroid, isIOS, openInBrowser } = useInAppBrowser();
 
   const handleCopyLink = async () => {
     try {
@@ -30,6 +35,14 @@ export function Header() {
     } catch (e) {
       toast.error("링크 복사에 실패했습니다.");
       console.error(e);
+    }
+  };
+
+  const handleLoginClick = () => {
+    if (isInAppBrowser) {
+      setShowInAppWarning(true);
+    } else {
+      signInWithGoogle();
     }
   };
 
@@ -101,7 +114,7 @@ export function Header() {
           ) : (
             <Button 
               size="sm" 
-              onClick={signInWithGoogle} 
+              onClick={handleLoginClick} 
               disabled={isAuthenticating}
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs rounded-md px-4 min-w-[70px]"
             >
@@ -114,6 +127,14 @@ export function Header() {
           )
         )}
       </div>
+      
+      <InAppBrowserWarning 
+        open={showInAppWarning}
+        onOpenChange={setShowInAppWarning}
+        isAndroid={isAndroid}
+        isIOS={isIOS}
+        onOpenBrowser={openInBrowser}
+      />
     </header>
   );
 }
