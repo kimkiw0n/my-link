@@ -15,6 +15,17 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+export const metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
+  title: {
+    default: "MyLink - Portfolio in One Link",
+    template: "%s | MyLink",
+  },
+  description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
