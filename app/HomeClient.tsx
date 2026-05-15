@@ -22,11 +22,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Move, BarChart2, User, LogIn, Palette, Share2, ArrowRight } from "lucide-react";
+import { useInAppBrowser } from "@/hooks/use-in-app-browser";
+import { InAppBrowserWarning } from "@/components/in-app-browser-warning";
 
 export function HomeClient() {
   const { user, loading: authLoading, isAuthenticating, signInWithGoogle } = useAuth();
   const [displayNameError, setDisplayNameError] = useState<string | null>(null);
   const [isDuplicateAlertOpen, setIsDuplicateAlertOpen] = useState(false);
+  const [showInAppWarning, setShowInAppWarning] = useState(false);
+  const { isInAppBrowser, isAndroid, isIOS, openInBrowser } = useInAppBrowser();
 
   // TanStack Query Hooks
   const { data: profile } = useProfileQuery(user?.uid);
@@ -59,25 +63,25 @@ export function HomeClient() {
     if (!profile?.linkOrder) return 0;
     const indexA = profile.linkOrder.indexOf(a.id);
     const indexB = profile.linkOrder.indexOf(b.id);
-    
+
     // linkOrder에 없는 새 링크는 맨 아래로
     if (indexA === -1 && indexB === -1) return 0;
     if (indexA === -1) return 1;
     if (indexB === -1) return -1;
-    
+
     return indexA - indexB;
   });
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (over && active.id !== over.id) {
       const oldIndex = sortedLinks.findIndex((link) => link.id === active.id);
       const newIndex = sortedLinks.findIndex((link) => link.id === over.id);
-      
+
       const newSortedLinks = arrayMove(sortedLinks, oldIndex, newIndex);
       const newOrder = newSortedLinks.map(l => l.id);
-      
+
       try {
         await updateLinkOrder(newOrder);
       } catch (e) {
@@ -96,7 +100,7 @@ export function HomeClient() {
       setIsDuplicateAlertOpen(true);
       // InlineEdit이 닫히는 것을 방지하기 위해 에러를 던지지만, 
       // 이미 팝업이 떴으므로 사용자는 팝업을 보고 대응하게 됩니다.
-      throw new Error("duplicate-silent"); 
+      throw new Error("duplicate-silent");
     }
   };
 
@@ -116,6 +120,14 @@ export function HomeClient() {
     await deleteLink(id);
   };
 
+  const handleLoginClick = () => {
+    if (isInAppBrowser) {
+      setShowInAppWarning(true);
+    } else {
+      signInWithGoogle();
+    }
+  };
+
   if (authLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-zinc-50/50 dark:bg-zinc-950">
@@ -129,16 +141,16 @@ export function HomeClient() {
       <main className="flex min-h-[calc(100vh-73px)] flex-col items-center py-20 px-4 bg-white dark:bg-zinc-950 overflow-x-hidden relative">
         <div className="w-full max-w-4xl text-center space-y-8 relative z-10 mt-10">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-white leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            Portfolio in <br/><span className="text-blue-600">One Link.</span>
+            Portfolio in <br /><span className="text-blue-600">One Link.</span>
           </h1>
           <p className="text-lg md:text-xl text-zinc-500 dark:text-zinc-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150 fill-mode-both">
-            GitHub, 블로그, 수상 이력까지<br/>
+            GitHub, 블로그, 수상 이력까지<br />
             모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.
           </p>
-          
+
           <div className="pt-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-both">
-            <button 
-              onClick={signInWithGoogle}
+            <button
+              onClick={handleLoginClick}
               disabled={isAuthenticating}
               className="bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:hover:translate-y-0 text-white font-semibold py-4 px-10 rounded-xl shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mx-auto text-lg w-full max-w-sm"
             >
@@ -162,7 +174,7 @@ export function HomeClient() {
         {/* Dynamic Mockup Graphic */}
         <div className="mt-20 relative w-full max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-500 fill-mode-both z-0">
           <div className="absolute inset-0 bg-blue-400/20 dark:bg-blue-600/20 blur-3xl rounded-[100%] transform -translate-y-1/4 scale-150"></div>
-          <div 
+          <div
             className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl shadow-2xl p-8 transition-transform duration-700 ease-out cursor-default"
             style={{ transform: "perspective(1200px) rotateX(15deg) rotateY(-5deg) rotateZ(2deg)", transformStyle: "preserve-3d" }}
             onMouseEnter={(e) => e.currentTarget.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)"}
@@ -176,7 +188,7 @@ export function HomeClient() {
                 <div className="w-48 h-3.5 rounded-md bg-zinc-100/80 dark:bg-zinc-800/50 animate-pulse"></div>
               </div>
             </div>
-            
+
             {/* List Mock */}
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -201,32 +213,32 @@ export function HomeClient() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
             <div className="absolute inset-0 bg-blue-400/5 dark:bg-blue-600/5 blur-3xl rounded-[100%] scale-150"></div>
-            
+
             {/* Feature 1 */}
             <div className="relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
               <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
                 <Move className="w-7 h-7" />
               </div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">직관적인 관리</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 font-medium">드래그 앤 드롭으로 링크 순서를<br/>자유롭게 변경하세요.</p>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">드래그 앤 드롭으로 링크 순서를<br />자유롭게 변경하세요.</p>
             </div>
-            
+
             {/* Feature 2 */}
             <div className="relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
               <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
                 <BarChart2 className="w-7 h-7" />
               </div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">실시간 통계</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 font-medium">방문자들이 어떤 링크에 가장 관심 있는지<br/>클릭 수를 확인하세요.</p>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">방문자들이 어떤 링크에 가장 관심 있는지<br />클릭 수를 확인하세요.</p>
             </div>
-            
+
             {/* Feature 3 */}
             <div className="relative bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform duration-300">
               <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
                 <User className="w-7 h-7" />
               </div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">나만의 프로필</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 font-medium">커스텀 아이디와 프로필로<br/>나만의 포트폴리오를 완성하세요.</p>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">커스텀 아이디와 프로필로<br />나만의 포트폴리오를 완성하세요.</p>
             </div>
           </div>
         </div>
@@ -289,8 +301,8 @@ export function HomeClient() {
           </div>
 
           <div className="mt-20 pt-4 text-center relative z-10">
-            <button 
-              onClick={signInWithGoogle}
+            <button
+              onClick={handleLoginClick}
               disabled={isAuthenticating}
               className="relative bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:hover:translate-y-0 text-white font-semibold py-4 px-10 rounded-xl shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mx-auto text-lg w-full max-w-sm group"
             >
@@ -320,10 +332,10 @@ export function HomeClient() {
         {/* 프로필 영역 */}
         <div className="flex flex-col items-center text-center space-y-5">
           {profile?.photoURL ? (
-            <img 
-              src={profile.photoURL} 
-              alt="Profile" 
-              className="w-24 h-24 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm object-cover" 
+            <img
+              src={profile.photoURL}
+              alt="Profile"
+              className="w-24 h-24 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm object-cover"
             />
           ) : (
             <div className="w-24 h-24 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-center text-3xl font-medium tracking-tight text-zinc-600 dark:text-zinc-400">
@@ -369,22 +381,22 @@ export function HomeClient() {
             </div>
           ) : sortedLinks.length === 0 ? (
             <div className="text-center py-10 text-zinc-500 dark:text-zinc-400 text-sm">
-              아직 추가된 링크가 없습니다.<br/>새로운 링크를 추가해 보세요!
+              아직 추가된 링크가 없습니다.<br />새로운 링크를 추가해 보세요!
             </div>
           ) : (
-            <DndContext 
+            <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
-              <SortableContext 
+              <SortableContext
                 items={sortedLinks.map(l => l.id)}
                 strategy={verticalListSortingStrategy}
               >
                 {sortedLinks.map((link) => (
-                  <LinkCard 
-                    key={link.id} 
-                    link={link} 
+                  <LinkCard
+                    key={link.id}
+                    link={link}
                     onUpdate={handleUpdateLink}
                     onDelete={handleDeleteLink}
                   />
@@ -394,7 +406,7 @@ export function HomeClient() {
           )}
         </div>
       </div>
-      
+
       {/* 푸터 영역 */}
       <footer className="mt-16 pb-8 text-[12px] font-medium text-zinc-400 dark:text-zinc-600 tracking-wide uppercase">
         Powered by MyLink
@@ -402,7 +414,7 @@ export function HomeClient() {
 
       {/* 중복 아이디 경고 팝업 */}
       <Dialog open={isDuplicateAlertOpen} onOpenChange={setIsDuplicateAlertOpen}>
-        <DialogContent 
+        <DialogContent
           showCloseButton={false}
           className="max-w-[320px] sm:max-w-[380px] rounded-[32px] p-0 overflow-hidden border-none bg-white dark:bg-zinc-900 shadow-2xl animate-in fade-in zoom-in-95 duration-300"
         >
@@ -410,7 +422,7 @@ export function HomeClient() {
             <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-6 shadow-sm border border-red-100 dark:border-red-800/30">
               <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-500" />
             </div>
-            
+
             <DialogHeader className="space-y-3 mb-8">
               <DialogTitle className="text-2xl font-bold tracking-tight text-red-600 dark:text-red-500">
                 아이디 중복 에러
@@ -422,8 +434,8 @@ export function HomeClient() {
             </DialogHeader>
 
             <DialogFooter className="w-full">
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 onClick={() => setIsDuplicateAlertOpen(false)}
                 className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg shadow-red-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] border-none text-base"
               >
@@ -433,6 +445,15 @@ export function HomeClient() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* 인앱 브라우저 경고 팝업 */}
+      <InAppBrowserWarning 
+        open={showInAppWarning}
+        onOpenChange={setShowInAppWarning}
+        isAndroid={isAndroid}
+        isIOS={isIOS}
+        onOpenBrowser={openInBrowser}
+      />
     </main>
   );
 }
