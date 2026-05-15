@@ -29,17 +29,27 @@ export function StatsClient() {
   const mostPopularLink = useMemo(() => {
     if (links.length === 0) return null;
     return links.reduce((prev, current) => {
-      return (prev.clickCount || 0) > (current.clickCount || 0) ? prev : current;
+      const prevClicks = prev.clickCount || 0;
+      const currentClicks = current.clickCount || 0;
+      if (prevClicks > currentClicks) return prev;
+      if (currentClicks > prevClicks) return current;
+      // 클릭 수가 같으면 더 최근 활동(updatedAtMillis)인 것을 선택
+      return (prev.updatedAtMillis || 0) >= (current.updatedAtMillis || 0) ? prev : current;
     });
   }, [links]);
 
   const chartData = useMemo(() => {
     return links.map((link) => ({
+      ...link,
       title: link.title || "Unknown",
       clicks: link.clickCount || 0,
       url: link.url,
       icon: link.icon,
-    })).sort((a, b) => b.clicks - a.clicks);
+    })).sort((a, b) => {
+      if (b.clicks !== a.clicks) return b.clicks - a.clicks;
+      // 클릭 수가 같으면 최근 활동 순(updatedAtMillis 내림차순)
+      return (b.updatedAtMillis || 0) - (a.updatedAtMillis || 0);
+    });
   }, [links]);
 
   if (authLoading || linksLoading || !user) {

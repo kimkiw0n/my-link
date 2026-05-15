@@ -23,6 +23,8 @@ export function useLinksQuery(uid: string | undefined) {
           icon: data.icon,
           clickCount: data.clickCount || 0,
           updatedAt: data.updatedAt?.toDate?.()?.toLocaleString('ko-KR'),
+          createdAtMillis: data.createdAt?.toMillis?.() || 0,
+          updatedAtMillis: data.updatedAt?.toMillis?.() || data.createdAt?.toMillis?.() || 0,
         });
       });
       queryClient.setQueryData(["links", uid], fetchedLinks);
