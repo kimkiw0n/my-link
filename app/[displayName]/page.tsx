@@ -6,12 +6,58 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { PublicLinkCard } from "@/components/public-link-card";
 
+import { Metadata, ResolvingMetadata } from "next";
+
 // 60초마다 페이지 재생성 (ISR 적용)
 export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ displayName: string }>;
 }
+
+export async function generateMetadata(
+  { params }: PageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { displayName } = await params;
+
+  // 유저 조회
+  const userQuery = query(
+    collection(db, "users"),
+    where("displayName", "==", displayName)
+  );
+  const userSnapshot = await getDocs(userQuery);
+
+  if (userSnapshot.empty) {
+    return {
+      title: "User Not Found | MyLink",
+    };
+  }
+
+  const userData = userSnapshot.docs[0].data();
+  const username = userData.username || displayName;
+  const bio = userData.bio || `${username}님의 포트폴리오 링크를 확인해보세요.`;
+  const photoURL = userData.photoURL;
+
+  return {
+    title: `${username} (@${displayName}) | MyLink`,
+    description: bio,
+    openGraph: {
+      title: `${username} (@${displayName}) | MyLink`,
+      description: bio,
+      images: photoURL ? [photoURL] : [],
+      type: "profile",
+      username: displayName,
+    },
+    twitter: {
+      card: "summary",
+      title: `${username} (@${displayName}) | MyLink`,
+      description: bio,
+      images: photoURL ? [photoURL] : [],
+    },
+  };
+}
+
 
 export default async function PublicProfilePage({ params }: PageProps) {
   const { displayName } = await params;

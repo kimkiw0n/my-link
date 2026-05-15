@@ -23,8 +23,43 @@ export const metadata = {
     default: "MyLink - Portfolio in One Link",
     template: "%s | MyLink",
   },
-  description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.",
+  description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요. GitHub, 블로그, 수상 이력까지 나만의 커스텀 링크 페이지를 30초 만에 만들어보세요.",
+  keywords: ["MyLink", "마이링크", "포트폴리오", "링크트리", "개발자 포트폴리오", "멀티링크", "Linktree alternative"],
+  authors: [{ name: "MyLink Team" }],
+  creator: "MyLink Team",
+  publisher: "MyLink Team",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: "MyLink - Portfolio in One Link",
+    description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    siteName: "MyLink",
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MyLink - Portfolio in One Link",
+    description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.",
+    creator: "@mylink",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
+
 
 export default function RootLayout({
   children,
