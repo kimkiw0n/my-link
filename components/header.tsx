@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Copy, Eye, LogOut, ExternalLink, Loader2, BarChart2 } from "lucide-react";
+import { Copy, Eye, LogOut, Loader2, BarChart2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useInAppBrowser } from "@/hooks/use-in-app-browser";
@@ -57,16 +57,6 @@ export function Header() {
         {pathname === "/" && !loading && (
           user ? (
             <div className="flex items-center gap-2 sm:gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => profile?.displayName && router.push(`/${profile.displayName}`)}
-                className="hidden sm:flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span className="font-medium">내 페이지</span>
-              </Button>
-
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center justify-center w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden bg-zinc-100 dark:bg-zinc-900 transition-all hover:ring-2 hover:ring-blue-500/50">
                   {profile?.photoURL ? (
