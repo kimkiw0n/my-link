@@ -18,6 +18,7 @@ import { Copy, Eye, LogOut, ExternalLink, Loader2, BarChart2 } from "lucide-reac
 import { toast } from "sonner";
 import { useState } from "react";
 import { useInAppBrowser } from "@/hooks/use-in-app-browser";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { InAppBrowserWarning } from "@/components/in-app-browser-warning";
 
 export function Header() {
@@ -51,7 +52,8 @@ export function Header() {
       <Link href="/" className="font-extrabold text-2xl tracking-tighter text-blue-600 dark:text-blue-500 hover:opacity-80 transition-opacity">
         MyLink
       </Link>
-      <div>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
         {pathname === "/" && !loading && (
           user ? (
             <div className="flex items-center gap-2 sm:gap-3">
