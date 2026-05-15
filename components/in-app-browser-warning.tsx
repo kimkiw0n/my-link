@@ -44,7 +44,7 @@ export function InAppBrowserWarning({
         <div className="flex flex-col text-left">
           <DialogHeader className="space-y-3 mb-6">
             <DialogTitle className="text-[17px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              <AlertTriangle className="w-5 h-5 text-zinc-400 dark:text-zinc-300" />
               로그인 제한 안내
             </DialogTitle>
             <DialogDescription className="text-[14px] font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed pt-1">
@@ -58,7 +58,7 @@ export function InAppBrowserWarning({
               <Button 
                 variant="default" 
                 onClick={onOpenBrowser}
-                className="w-full h-11 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-bold rounded-xl transition-all active:scale-[0.98] border-none text-[15px]"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] border-none text-[15px]"
               >
                 시스템 브라우저로 이동
               </Button>
@@ -76,7 +76,7 @@ export function InAppBrowserWarning({
                 <Button 
                   variant="default" 
                   onClick={handleCopyLink}
-                  className="w-full h-11 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-bold rounded-xl transition-all active:scale-[0.98] border-none text-[15px] gap-2"
+                  className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all active:scale-[0.98] border-none text-[15px] gap-2"
                 >
                   {copied ? (
                     <>
