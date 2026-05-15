@@ -8,7 +8,7 @@ export const contentType = "image/png";
 async function getFont(text: string, weight: number) {
   try {
     const url = `https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@${weight}&text=${encodeURIComponent(text)}`;
-    
+
     const css = await (
       await fetch(url, {
         headers: {

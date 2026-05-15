@@ -8,7 +8,6 @@ export const metadata: Metadata = {
     title: "MyLink - Portfolio in One Link",
     description: "모든 활동을 한 페이지에 담아 나만의 포트폴리오를 완성하세요.",
     url: "https://my-link-kiwon.vercel.app",
-    images: ["/og-image.png"],
   },
 };
 
