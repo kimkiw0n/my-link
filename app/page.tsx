@@ -7,9 +7,11 @@ import { AddLinkDialog } from "@/components/add-link-dialog";
 import { LinkCard } from "@/components/link-card";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/use-auth";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { InlineEdit } from "@/components/inline-edit";
 import { useLinksQuery, useAddLinkMutation, useUpdateLinkMutation, useDeleteLinkMutation } from "@/hooks/use-links";
-import { useProfileQuery, useUpdateProfileMutation, useUpdateDisplayNameMutation } from "@/hooks/use-profile";
+import { useProfileQuery, useUpdateProfileMutation, useUpdateDisplayNameMutation, useUpdateLinkOrderMutation } from "@/hooks/use-profile";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +36,49 @@ export default function Page() {
   const { mutateAsync: deleteLink } = useDeleteLinkMutation(user?.uid);
   const { mutateAsync: updateProfile } = useUpdateProfileMutation();
   const { mutateAsync: updateDisplayName } = useUpdateDisplayNameMutation(setDisplayNameError);
+  const { mutateAsync: updateLinkOrder } = useUpdateLinkOrderMutation();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const sortedLinks = [...links].sort((a, b) => {
+    if (!profile?.linkOrder) return 0;
+    const indexA = profile.linkOrder.indexOf(a.id);
+    const indexB = profile.linkOrder.indexOf(b.id);
+    
+    // linkOrder에 없는 새 링크는 맨 아래로
+    if (indexA === -1 && indexB === -1) return 0;
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    
+    return indexA - indexB;
+  });
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const oldIndex = sortedLinks.findIndex((link) => link.id === active.id);
+      const newIndex = sortedLinks.findIndex((link) => link.id === over.id);
+      
+      const newSortedLinks = arrayMove(sortedLinks, oldIndex, newIndex);
+      const newOrder = newSortedLinks.map(l => l.id);
+      
+      try {
+        await updateLinkOrder(newOrder);
+      } catch (e) {
+        console.error("Failed to reorder links", e);
+      }
+    }
+  };
 
   const handleUpdateProfile = (field: "username" | "bio", value: string) => {
     updateProfile({ field, value });
@@ -194,19 +239,30 @@ export default function Page() {
             <div className="flex items-center justify-center py-10">
               <Loader2 className="w-8 h-8 text-zinc-400 dark:text-zinc-600 animate-spin" />
             </div>
-          ) : links.length === 0 ? (
+          ) : sortedLinks.length === 0 ? (
             <div className="text-center py-10 text-zinc-500 dark:text-zinc-400 text-sm">
               아직 추가된 링크가 없습니다.<br/>새로운 링크를 추가해 보세요!
             </div>
           ) : (
-            links.map((link) => (
-              <LinkCard 
-                key={link.id} 
-                link={link} 
-                onUpdate={handleUpdateLink}
-                onDelete={handleDeleteLink}
-              />
-            ))
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext 
+                items={sortedLinks.map(l => l.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {sortedLinks.map((link) => (
+                  <LinkCard 
+                    key={link.id} 
+                    link={link} 
+                    onUpdate={handleUpdateLink}
+                    onDelete={handleDeleteLink}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>

@@ -47,6 +47,21 @@ export default async function PublicProfilePage({ params }: PageProps) {
     ...doc.data(),
   }));
 
+  // userData에 저장된 linkOrder를 기반으로 링크 정렬
+  const linkOrder = userData.linkOrder as string[] | undefined;
+  const sortedLinks = [...links].sort((a, b) => {
+    if (!linkOrder) return 0;
+    const indexA = linkOrder.indexOf(a.id);
+    const indexB = linkOrder.indexOf(b.id);
+    
+    // linkOrder에 없는 새 링크는 맨 아래로
+    if (indexA === -1 && indexB === -1) return 0;
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    
+    return indexA - indexB;
+  });
+
   return (
     <main className="flex min-h-screen flex-col items-center py-20 px-4 bg-zinc-50/50 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50">
       <div className="w-full max-w-md space-y-10">
@@ -83,12 +98,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
         {/* 링크 목록 섹션 */}
         <div className="flex flex-col gap-4">
-          {links.length === 0 ? (
+          {sortedLinks.length === 0 ? (
             <p className="text-center text-zinc-400 text-sm py-10">
               등록된 링크가 없습니다.
             </p>
           ) : (
-            links.map((link: any) => (
+            sortedLinks.map((link: any) => (
               <PublicLinkCard 
                 key={link.id} 
                 link={{

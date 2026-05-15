@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Edit2, Trash2, Loader2 } from "lucide-react";
+import { Edit2, Trash2, Loader2, GripVertical } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,6 +9,8 @@ import * as z from "zod";
 import { LinkItem } from "@/data/links";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +68,22 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
     mode: "onChange",
   });
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: link.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : "auto",
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const handleEditClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsEditing(true);
@@ -115,7 +133,11 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
 
   if (isEditing) {
     return (
-      <Card className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] outline-none ring-offset-background focus-within:ring-2 focus-within:ring-zinc-400 focus-within:ring-offset-2 overflow-hidden py-1">
+      <Card 
+        ref={setNodeRef}
+        style={style}
+        className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] outline-none ring-offset-background focus-within:ring-2 focus-within:ring-zinc-400 focus-within:ring-offset-2 overflow-hidden py-1"
+      >
         <form onSubmit={handleSubmit(onSubmitEdit)} className="p-4 space-y-4">
           <div className="space-y-4">
             <Controller
@@ -179,13 +201,31 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
 
   return (
     <>
-      <Card className="group relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-300">
+      <Card 
+        ref={setNodeRef}
+        style={style}
+        className={`group relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 ${
+          isDragging 
+            ? "shadow-2xl scale-[1.02] ring-2 ring-blue-500/50 z-50 cursor-grabbing" 
+            : "shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] transition-shadow transition-colors duration-300"
+        }`}
+      >
         <div className="flex items-center min-w-0">
+          {/* 드래그 핸들 */}
+          <div 
+            {...attributes} 
+            {...listeners} 
+            className="p-2 sm:p-3 pl-3 sm:pl-4 cursor-grab active:cursor-grabbing text-zinc-300 hover:text-zinc-500 dark:text-zinc-600 dark:hover:text-zinc-400 transition-colors focus:outline-none"
+            aria-label="드래그하여 순서 변경"
+          >
+            <GripVertical className="w-5 h-5" />
+          </div>
+
           <a
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 flex items-center p-2.5 sm:p-3 min-w-0 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 rounded-2xl"
+            className="flex-1 flex items-center p-2.5 sm:p-3 pl-1 min-w-0 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 rounded-2xl"
           >
             {/* 파비콘 아이콘 */}
             {link.icon ? (

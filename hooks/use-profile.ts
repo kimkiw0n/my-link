@@ -146,3 +146,42 @@ export function useUpdateDisplayNameMutation(setDisplayNameError: (err: string |
     },
   });
 }
+
+export function useUpdateLinkOrderMutation() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (linkOrder: string[]) => {
+      if (!user) throw new Error("User not authenticated");
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { linkOrder });
+    },
+    onMutate: async (linkOrder) => {
+      if (!user) return { previousProfile: null };
+      
+      await queryClient.cancelQueries({ queryKey: ["profile", user.uid] });
+      const previousProfile = queryClient.getQueryData<UserProfile>(["profile", user.uid]);
+      
+      if (previousProfile) {
+        queryClient.setQueryData<UserProfile>(["profile", user.uid], {
+          ...previousProfile,
+          linkOrder,
+        });
+      }
+      return { previousProfile };
+    },
+    onError: (err, newOrder, context) => {
+      if (user && context?.previousProfile) {
+        queryClient.setQueryData(["profile", user.uid], context.previousProfile);
+      }
+      toast.error("링크 순서 저장 중 오류가 발생했습니다.");
+      console.error(err);
+    },
+    onSettled: () => {
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: ["profile", user.uid] });
+      }
+    },
+  });
+}

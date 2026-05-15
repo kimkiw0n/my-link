@@ -12,6 +12,7 @@ export interface UserProfile {
   displayName: string;
   photoURL: string | null;
   bio?: string;
+  linkOrder?: string[];
 }
 
 interface AuthContextType {
