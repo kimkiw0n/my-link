@@ -165,40 +165,39 @@ export function StatsClient() {
                   }}
                   className="min-h-[350px] w-full"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 20 }}>
-                      <CartesianGrid vertical={false} strokeDasharray="4 4" className="stroke-zinc-200 dark:stroke-zinc-800" />
-                      <XAxis 
-                        dataKey="title" 
-                        tickLine={false} 
-                        axisLine={false} 
-                        tickMargin={16} 
-                        fontSize={13}
-                        className="fill-zinc-600 dark:fill-zinc-400 font-medium"
-                        tickFormatter={(value) => value.length > 12 ? `${value.substring(0, 12)}...` : value}
-                      />
-                      <YAxis 
-                        tickLine={false} 
-                        axisLine={false} 
-                        tickMargin={16} 
-                        fontSize={13}
-                        className="fill-zinc-600 dark:fill-zinc-400 font-medium"
-                        allowDecimals={false}
-                      />
-                      <ChartTooltip 
-                        cursor={{ fill: 'var(--color-clicks)', opacity: 0.1 }}
-                        isAnimationActive={false}
-                        content={<ChartTooltipContent className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl font-medium" />} 
-                      />
-                      <Bar 
-                        dataKey="clicks" 
-                        fill="var(--color-clicks)" 
-                        radius={[6, 6, 0, 0]} 
-                        maxBarSize={60}
-                        animationDuration={1000}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+                    <CartesianGrid vertical={false} strokeDasharray="4 4" className="stroke-zinc-200 dark:stroke-zinc-800" />
+                    <XAxis 
+                      dataKey="title" 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={12} 
+                      fontSize={12}
+                      className="fill-zinc-600 dark:fill-zinc-400 font-medium"
+                      tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 10)}...` : value}
+                    />
+                    <YAxis 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tickMargin={8} 
+                      fontSize={12}
+                      width={35}
+                      className="fill-zinc-600 dark:fill-zinc-400 font-medium"
+                      allowDecimals={false}
+                    />
+                    <ChartTooltip 
+                      cursor={{ fill: 'var(--color-clicks)', opacity: 0.1 }}
+                      isAnimationActive={false}
+                      content={<ChartTooltipContent className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl font-medium" />} 
+                    />
+                    <Bar 
+                      dataKey="clicks" 
+                      fill="var(--color-clicks)" 
+                      radius={[6, 6, 0, 0]} 
+                      maxBarSize={60}
+                      animationDuration={1000}
+                    />
+                  </BarChart>
                 </ChartContainer>
               </CardContent>
             </Card>
