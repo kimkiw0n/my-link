@@ -229,7 +229,7 @@ export function HomeClient() {
                 <BarChart2 className="w-7 h-7" />
               </div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">실시간 통계</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 font-medium">방문자들이 어떤 링크에 가장 관심 있는지<br />클릭 수를 확인하세요.</p>
+              <p className="text-zinc-500 dark:text-zinc-400 font-medium">방문자들이 어떤 링크에 가장 관심 있는지<br />조회 수를 확인하세요.</p>
             </div>
 
             {/* Feature 3 */}

@@ -33,7 +33,7 @@ export function StatsClient() {
       const currentClicks = current.clickCount || 0;
       if (prevClicks > currentClicks) return prev;
       if (currentClicks > prevClicks) return current;
-      // 클릭 수가 같으면 더 최근 활동(updatedAtMillis)인 것을 선택
+      // 조회 수가 같으면 더 최근 활동(updatedAtMillis)인 것을 선택
       return (prev.updatedAtMillis || 0) >= (current.updatedAtMillis || 0) ? prev : current;
     });
   }, [links]);
@@ -47,7 +47,7 @@ export function StatsClient() {
       icon: link.icon,
     })).sort((a, b) => {
       if (b.clicks !== a.clicks) return b.clicks - a.clicks;
-      // 클릭 수가 같으면 최근 활동 순(updatedAtMillis 내림차순)
+      // 조회 수가 같으면 최근 활동 순(updatedAtMillis 내림차순)
       return (b.updatedAtMillis || 0) - (a.updatedAtMillis || 0);
     });
   }, [links]);
@@ -89,7 +89,7 @@ export function StatsClient() {
           <Card className="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-lg shadow-zinc-200/20 dark:shadow-black/20 rounded-3xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <CardTitle className="text-[15px] font-semibold text-zinc-600 dark:text-zinc-300">
-                총 클릭 수
+                총 조회 수
               </CardTitle>
               <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                 <MousePointerClick className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -100,7 +100,7 @@ export function StatsClient() {
                 {totalClicks.toLocaleString()}
               </div>
               <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-2">
-                모든 링크의 클릭 합산
+                모든 링크의 조회 합산
               </p>
             </CardContent>
           </Card>
@@ -119,7 +119,7 @@ export function StatsClient() {
                 {mostPopularLink?.title || "-"}
               </div>
               <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-2">
-                {mostPopularLink?.clickCount ? `${mostPopularLink.clickCount.toLocaleString()} 클릭` : '클릭 없음'}
+                {mostPopularLink?.clickCount ? `${mostPopularLink.clickCount.toLocaleString()} 조회` : '조회 없음'}
               </p>
             </CardContent>
           </Card>
@@ -149,56 +149,65 @@ export function StatsClient() {
             {/* Bar Chart Section */}
             <Card className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-xl shadow-zinc-200/30 dark:shadow-black/30 rounded-3xl overflow-hidden">
               <CardHeader className="border-b border-zinc-100 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50 pb-6">
-                <CardTitle className="text-xl font-bold text-zinc-900 dark:text-white">클릭 수 분석</CardTitle>
+                <CardTitle className="text-xl font-bold text-zinc-900 dark:text-white">조회 수 분석</CardTitle>
                 <CardDescription className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                  각 링크별 상세 클릭 현황을 확인하세요.
+                  각 링크별 상세 조회 현황을 확인하세요.
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-8 pb-4 px-2 sm:px-6">
-                <ChartContainer 
-                  config={{
-                    clicks: {
-                      label: "클릭 수",
-                      color: "#2563eb",
-                      icon: MousePointerClick,
-                    },
-                  }}
-                  className="min-h-[350px] w-full"
-                >
-                  <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="4 4" className="stroke-zinc-200 dark:stroke-zinc-800" />
-                    <XAxis 
-                      dataKey="title" 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickMargin={12} 
-                      fontSize={12}
-                      className="fill-zinc-600 dark:fill-zinc-400 font-medium"
-                      tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 10)}...` : value}
-                    />
-                    <YAxis 
-                      tickLine={false} 
-                      axisLine={false} 
-                      tickMargin={8} 
-                      fontSize={12}
-                      width={35}
-                      className="fill-zinc-600 dark:fill-zinc-400 font-medium"
-                      allowDecimals={false}
-                    />
-                    <ChartTooltip 
-                      cursor={{ fill: 'var(--color-clicks)', opacity: 0.1 }}
-                      isAnimationActive={false}
-                      content={<ChartTooltipContent className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl font-medium" />} 
-                    />
-                    <Bar 
-                      dataKey="clicks" 
-                      fill="var(--color-clicks)" 
-                      radius={[6, 6, 0, 0]} 
-                      maxBarSize={60}
-                      animationDuration={1000}
-                    />
-                  </BarChart>
-                </ChartContainer>
+                {/* 모바일 전용 안내 문구 */}
+                <div className="flex items-center justify-center gap-1.5 mb-6 sm:hidden text-[13px] font-medium text-zinc-400 dark:text-zinc-500 bg-zinc-50/50 dark:bg-zinc-800/30 py-2 rounded-xl border border-zinc-100 dark:border-zinc-800/50">
+                  <span>옆으로 밀어서 상세 데이터를 확인하세요</span>
+                </div>
+
+                <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
+                  <div className="min-w-[600px] sm:min-w-0">
+                    <ChartContainer 
+                      config={{
+                        clicks: {
+                          label: "조회 수",
+                          color: "#2563eb",
+                          icon: MousePointerClick,
+                        },
+                      }}
+                      className="h-[350px] w-full aspect-auto"
+                    >
+                      <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="4 4" className="stroke-zinc-200 dark:stroke-zinc-800" />
+                        <XAxis 
+                          dataKey="title" 
+                          tickLine={false} 
+                          axisLine={false} 
+                          tickMargin={12} 
+                          fontSize={12}
+                          className="fill-zinc-600 dark:fill-zinc-400 font-medium"
+                          tickFormatter={(value) => value.length > 12 ? `${value.substring(0, 12)}...` : value}
+                        />
+                        <YAxis 
+                          tickLine={false} 
+                          axisLine={false} 
+                          tickMargin={8} 
+                          fontSize={12}
+                          width={35}
+                          className="fill-zinc-600 dark:fill-zinc-400 font-medium"
+                          allowDecimals={false}
+                        />
+                        <ChartTooltip 
+                          cursor={{ fill: 'var(--color-clicks)', opacity: 0.1 }}
+                          isAnimationActive={false}
+                          content={<ChartTooltipContent className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl font-medium" />} 
+                        />
+                        <Bar 
+                          dataKey="clicks" 
+                          fill="var(--color-clicks)" 
+                          radius={[6, 6, 0, 0]} 
+                          maxBarSize={60}
+                          animationDuration={1000}
+                        />
+                      </BarChart>
+                    </ChartContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -207,7 +216,7 @@ export function StatsClient() {
               <CardHeader className="border-b border-zinc-100 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/50 pb-6">
                 <CardTitle className="text-xl font-bold text-zinc-900 dark:text-white">상세 링크 목록</CardTitle>
                 <CardDescription className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                  전체 링크의 세부 정보와 클릭 수를 리스트 형태로 확인합니다.
+                  전체 링크의 세부 정보와 조회 수를 리스트 형태로 확인합니다.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -245,7 +254,7 @@ export function StatsClient() {
                           {link.clicks.toLocaleString()}
                         </span>
                         <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                          Clicks
+                          Views
                         </span>
                       </div>
                     </div>
@@ -263,7 +272,7 @@ export function StatsClient() {
               아직 추가된 링크가 없습니다
             </p>
             <p className="text-[15px] text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm mx-auto">
-              첫 번째 링크를 추가하고 클릭 통계를 확인해 보세요.
+              첫 번째 링크를 추가하고 조회 통계를 확인해 보세요.
             </p>
             <Button 
               size="lg"

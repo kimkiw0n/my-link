@@ -250,7 +250,7 @@ export function LinkCard({ link, onUpdate, onDelete }: LinkCardProps) {
               {/* 클릭수 표시 */}
               <div className="flex items-center gap-1.5 text-[12px] sm:text-[13px] text-zinc-500 dark:text-zinc-400 font-medium">
                 <MousePointerClick className="w-3.5 h-3.5" />
-                <span>{link.clickCount || 0} clicks</span>
+                <span>{link.clickCount || 0} views</span>
               </div>
             </div>
           </a>
